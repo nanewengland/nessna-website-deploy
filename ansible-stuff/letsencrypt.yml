@@ -1,0 +1,100 @@
+### Example with HTTP challenge ###
+
+- name: Create a challenge for sample.com using a account key from a variable.
+  acme_certificate:
+    account_key_content: "{{ account_private_key }}"
+    csr: /etc/pki/cert/csr/sample.com.csr
+    dest: /etc/httpd/ssl/sample.com.crt
+  register: sample_com_challenge
+
+# Alternative first step:
+- name: Create a challenge for sample.com using a account key from hashi vault.
+  acme_certificate:
+    account_key_content: "{{ lookup('hashi_vault', 'secret=secret/account_private_key:value') }}"
+    csr: /etc/pki/cert/csr/sample.com.csr
+    fullchain_dest: /etc/httpd/ssl/sample.com-fullchain.crt
+  register: sample_com_challenge
+
+# Alternative first step:
+- name: Create a challenge for sample.com using a account key file.
+  acme_certificate:
+    account_key_src: /etc/pki/cert/private/account.key
+    csr: /etc/pki/cert/csr/sample.com.csr
+    dest: /etc/httpd/ssl/sample.com.crt
+    fullchain_dest: /etc/httpd/ssl/sample.com-fullchain.crt
+  register: sample_com_challenge
+
+# perform the necessary steps to fulfill the challenge
+# for example:
+#
+# - copy:
+#     dest: /var/www/html/{{ sample_com_challenge['challenge_data']['sample.com']['http-01']['resource'] }}
+#     content: "{{ sample_com_challenge['challenge_data']['sample.com']['http-01']['resource_value'] }}"
+#     when: sample_com_challenge is changed
+
+- name: Let the challenge be validated and retrieve the cert and intermediate certificate
+  acme_certificate:
+    account_key_src: /etc/pki/cert/private/account.key
+    csr: /etc/pki/cert/csr/sample.com.csr
+    dest: /etc/httpd/ssl/sample.com.crt
+    fullchain_dest: /etc/httpd/ssl/sample.com-fullchain.crt
+    chain_dest: /etc/httpd/ssl/sample.com-intermediate.crt
+    data: "{{ sample_com_challenge }}"
+
+### Example with DNS challenge against production ACME server ###
+
+- name: Create a challenge for sample.com using a account key file.
+  acme_certificate:
+    account_key_src: /etc/pki/cert/private/account.key
+    account_email: myself@sample.com
+    src: /etc/pki/cert/csr/sample.com.csr
+    cert: /etc/httpd/ssl/sample.com.crt
+    challenge: dns-01
+    acme_directory: https://acme-v01.api.letsencrypt.org/directory
+    # Renew if the certificate is at least 30 days old
+    remaining_days: 60
+  register: sample_com_challenge
+
+# perform the necessary steps to fulfill the challenge
+# for example:
+#
+# - route53:
+#     zone: sample.com
+#     record: "{{ sample_com_challenge.challenge_data['sample.com']['dns-01'].record }}"
+#     type: TXT
+#     ttl: 60
+#     state: present
+#     wait: yes
+#     # Note: route53 requires TXT entries to be enclosed in quotes
+#     value: "{{ sample_com_challenge.challenge_data['sample.com']['dns-01'].resource_value | regex_replace('^(.*)$', '\"\\1\"') }}"
+#   when: sample_com_challenge is changed
+#
+# Alternative way:
+#
+# - route53:
+#     zone: sample.com
+#     record: "{{ item.key }}"
+#     type: TXT
+#     ttl: 60
+#     state: present
+#     wait: yes
+#     # Note: item.value is a list of TXT entries, and route53
+#     # requires every entry to be enclosed in quotes
+#     value: "{{ item.value | map('regex_replace', '^(.*)$', '\"\\1\"' ) | list }}"
+#   loop: "{{ sample_com_challenge.challenge_data_dns | dictsort }}"
+#   when: sample_com_challenge is changed
+
+- name: Let the challenge be validated and retrieve the cert and intermediate certificate
+  acme_certificate:
+    account_key_src: /etc/pki/cert/private/account.key
+    account_email: myself@sample.com
+    src: /etc/pki/cert/csr/sample.com.csr
+    cert: /etc/httpd/ssl/sample.com.crt
+    fullchain: /etc/httpd/ssl/sample.com-fullchain.crt
+    chain: /etc/httpd/ssl/sample.com-intermediate.crt
+    challenge: dns-01
+    acme_directory: https://acme-v01.api.letsencrypt.org/directory
+    remaining_days: 60
+    data: "{{ sample_com_challenge }}"
+  when: sample_com_challenge is changed
+

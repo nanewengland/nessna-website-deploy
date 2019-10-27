@@ -60,8 +60,9 @@ resource "digitalocean_record" "nesssna" {
   value  = digitalocean_droplet.nesssna.ipv4_address
 }
 
-resource "digitalocean_certificate" "cert" {
-  name    = "nesssna-cert"
-  type    = "lets_encrypt"
-  domains = ["nesssna.org"]
-}
+// we don't need this, as not using LB
+//resource "digitalocean_certificate" "cert" {
+//  name    = "nesssna-cert"
+//  type    = "lets_encrypt"
+//  domains = ["nesssna.org"]
+//}
