@@ -7,9 +7,14 @@ It will update ubuntu and install nginx.
 
 # setting up terraform
 
-you will need to run `cp terraform.tfvars.example terraform.tfvars` and then put your api token in and add your fingerprint.
-you can get your fingerprint by running `curl -X GET -H "Content-Type: application/json" -H "Authorization: Bearer TOKEN" "https://api.digitalocean.com/v2/account/keys" | jq --raw-output` 
-and inserting your api key in curl command.
+you will need to run 
+
+`cp terraform.tfvars.example terraform.tfvars` 
+
+and then put your api token in and add your fingerprint. you can get your fingerprint by running the following making sure to put your api key in curl command.
+
+`curl -X GET -H "Content-Type: application/json" -H "Authorization: Bearer TOKEN" "https://api.digitalocean.com/v2/account/keys" | jq --raw-output` 
+
 
 to initalize terraform using remote state do the following. 
 ```
