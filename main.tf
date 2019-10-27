@@ -59,3 +59,9 @@ resource "digitalocean_record" "nesssna" {
   name   = "nesssna"
   value  = digitalocean_droplet.nesssna.ipv4_address
 }
+
+resource "digitalocean_certificate" "cert" {
+  name    = "nesssna-cert"
+  type    = "lets_encrypt"
+  domains = ["nesssna.org"]
+}
