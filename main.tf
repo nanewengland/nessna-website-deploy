@@ -29,7 +29,7 @@ resource "digitalocean_droplet" "nesssna" {
   private_networking = true
   backups            = true
   ipv6               = true
-  name               = "nesssna-webserver-ams3"
+  name               = "nesssna-webserver-nyc1"
 
   provisioner "remote-exec" {
     inline = [
