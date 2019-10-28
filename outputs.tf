@@ -5,3 +5,7 @@ output "public_ip" {
 output "name" {
   value = digitalocean_droplet.nesssna.name
 }
+
+output "domain_output" {
+  value = data.digitalocean_domain.nesssna.urn
+}

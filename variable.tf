@@ -13,12 +13,17 @@ variable "do_nyc3" {
   default     = "nyc3"
 }
 
-variable "do_sfo1" {
-  description = "Digital Ocean San Francisco Data Center 1"
-  default     = "sfo1"
-}
-
 variable "ubuntu" {
   description = "Default LTS"
   default     = "ubuntu-18-04-x64"
+}
+
+variable "wordpress" {
+  description = "Default Wordpress Ubuntu 18.04"
+  default     = "wordpress-18-04"
+}
+
+variable "domain" {
+  description = "Default Domain"
+  default     = "nesssna.org"
 }
