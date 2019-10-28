@@ -22,7 +22,8 @@ terraform {
 resource "digitalocean_droplet" "nesssna" {
   # Obtain your ssh_key id number via your account. By running the following.
   # curl -X GET -H "Content-Type: application/json" -H "Authorization: Bearer TOKEN" "https://api.digitalocean.com/v2/account/keys" | jq --raw-output
-  ssh_keys           = [25669899] # Key example
+  ssh_keys           = [25669899, # PJ
+                        25670813] # JB
   image              = var.ubuntu
   region             = var.do_nyc1
   size               = "s-1vcpu-1gb"
@@ -30,22 +31,6 @@ resource "digitalocean_droplet" "nesssna" {
   backups            = true
   ipv6               = true
   name               = "nesssna-webserver-nyc1"
-
-  provisioner "remote-exec" {
-    inline = [
-      "export PATH=$PATH:/usr/bin",
-      "sudo apt-get update",
-      "sudo apt-get -y install nginx",
-    ]
-
-    connection {
-      host        = self.ipv4_address
-      type        = "ssh"
-      private_key = file("~/.ssh/id_rsa")
-      user        = "root"
-      timeout     = "2m"
-    }
-  }
 }
 
 resource "digitalocean_domain" "nesssna" {
@@ -60,9 +45,50 @@ resource "digitalocean_record" "nesssna" {
   value  = digitalocean_droplet.nesssna.ipv4_address
 }
 
-// we don't need this, as not using LB
-//resource "digitalocean_certificate" "cert" {
-//  name    = "nesssna-cert"
-//  type    = "lets_encrypt"
-//  domains = ["nesssna.org"]
+resource "null_resource" "ProvisionRemoteHost" {
+  connection {
+    type        = "ssh"
+    host        = digitalocean_droplet.nesssna.ipv4_address
+    private_key = file("~/.ssh/id_rsa")
+    user        = "root"
+    timeout     = "2m"
+  }
+  provisioner "remote-exec" {
+    inline = [
+      "export PATH=$PATH:/usr/bin",
+      "sudo apt-get update",
+      "sudo apt-get install nginx python-setuptools python-pip certbot -yqq",
+      "sudo ufw allow 443",
+      "certbot certonly --noninteractive --webroot --agree-tos -m info@nesssna.org -d www.nesssna.org -w /var/www/html/"
+
+    ]
+  }
+  provisioner "local-exec" {
+    command = "echo ${digitalocean_droplet.nesssna.ipv4_address} >> hosts"
+  }
+}
+
+//
+//# create an ansible inventory file
+//resource "null_resource" "ansible-provision" {
+//  depends_on = ["digitalocean_droplet.nesssna"]
+//
+//  provisioner "local-exec" {
+//    command = "echo '${digitalocean_droplet.nesssna.name} ansible_host=${digitalocean_droplet.nesssna.ipv4_address} ansible_ssh_user=root ansible_python_interpreter=/usr/bin/python3' > inventory"
+//  }
 //}
+////
+////resource "null_resource" "ConfigureAnsibleLabelVariable" {
+////  provisioner "local-exec" {
+////    command = "echo [${var.dev_host_label}:vars] > hosts"
+////  }
+////  provisioner "local-exec" {
+////    command = "echo ansible_ssh_user=${var.ssh_user_name} >> hosts"
+////  }
+////  provisioner "local-exec" {
+////    command = "echo ansible_ssh_private_key_file=${var.ssh_key_path} >> hosts"
+////  }
+////  provisioner "local-exec" {
+////    command = "echo [${var.dev_host_label}] >> hosts"
+////  }
+////}

@@ -4,4 +4,6 @@
 *.tfstate
 .terraform
 .tfstate.backup
+hosts
+inventory
 
