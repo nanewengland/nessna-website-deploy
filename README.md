@@ -15,8 +15,9 @@ and then put your api token in and add your fingerprint. you can get your finger
 
 `curl -X GET -H "Content-Type: application/json" -H "Authorization: Bearer TOKEN" "https://api.digitalocean.com/v2/account/keys" | jq --raw-output` 
 
+state file is in source control, I have removed remote state from DO to save money.
 
-to initalize terraform using remote state do the following. 
+~to initalize terraform using remote state do the following.~
 ```
 terraform init \
  -backend-config="access_key=$SPACES_ACCESS_TOKEN" \
