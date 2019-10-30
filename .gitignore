@@ -1,7 +1,6 @@
 .DS_Store
 .idea
 *.tfvars
-*.tfstate
 .terraform
 .tfstate.backup
 hosts
