@@ -3,17 +3,18 @@ provider "digitalocean" {
   # export DIGITALOCEAN_TOKEN="Your API TOKEN"
 }
 
-terraform {
-  backend "s3" {
-    endpoint = "nyc3.digitaloceanspaces.com"
-    region = "us-east-1"
-    key = "terraform.tfstate"
-    skip_requesting_account_id = true
-    skip_credentials_validation = true
-    skip_get_ec2_platforms = true
-    skip_metadata_api_check = true
-  }
-}
+// Removed remote state to save money, state is now in source control.
+//terraform {
+//  backend "s3" {
+//    endpoint = "nyc3.digitaloceanspaces.com"
+//    region = "us-east-1"
+//    key = "terraform.tfstate"
+//    skip_requesting_account_id = true
+//    skip_credentials_validation = true
+//    skip_get_ec2_platforms = true
+//    skip_metadata_api_check = true
+//  }
+//}
 
 resource "digitalocean_droplet" "nesssna" {
   # Obtain your ssh_key id number via your account. By running the following.
