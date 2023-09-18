@@ -25,7 +25,7 @@ resource "digitalocean_droplet" "nesssna" {
   size    = "s-1vcpu-1gb-intel"
   backups = true
   ipv6    = false
-  name    = "nesssna-webserver-new-nyc3"
+  name    = "nesssna-webserver-nyc3"
 }
 
 resource "digitalocean_floating_ip" "nesssna" {
