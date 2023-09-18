@@ -1,11 +1,7 @@
-output "public_ip" {
-  value = digitalocean_droplet.nesssna.ipv4_address
-}
-
-output "name" {
-  value = digitalocean_droplet.nesssna.name
-}
-
-output "domain_output" {
-  value = data.digitalocean_domain.nesssna.urn
+output "droplet" {
+  value = {
+    public_ip = digitalocean_droplet.nesssna.ipv4_address
+    static_ip = digitalocean_floating_ip.nesssna.ip_address
+    domain    = data.digitalocean_domain.nesssna.urn
+  }
 }
